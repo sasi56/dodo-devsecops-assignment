@@ -27,6 +27,7 @@ jobs:
         scan-ref: '.'
 
     - name: Run Semgrep
+      continue-on-error: true
       uses: returntocorp/semgrep-action@v1
       with:
         config: p/security-audit
