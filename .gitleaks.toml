@@ -1,0 +1,5 @@
+[allowlist]
+paths = [
+  '''deploy/deployment.yaml''',
+  '''hardening/sealed-secret.yaml'''
+]
