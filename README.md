@@ -1,104 +1,124 @@
-# ledger-api
-
-Payments microservice for tokenising PANs and serving transaction metadata.
-Deployed on Kubernetes in the `payments` namespace.
-
-## Endpoints
-
-| Method | Path            | Description                          |
-|--------|-----------------|--------------------------------------|
-| GET    | `/health`       | Liveness check                       |
-| POST   | `/tokenize`     | `{"pan": "..."}` → opaque token      |
-| GET    | `/transactions` | Recent transaction records           |
-| POST   | `/import`       | Import a YAML configuration blob     |
-| GET    | `/fetch?url=`   | Fetch a remote resource by URL       |
-
-# Task 1 - Deploy & Harden the Workload
+# Dodo DevSecOps Assignment
 
 ## Overview
 
-The objective of this task was to deploy and secure the vulnerable ledger-api application by implementing Kubernetes security best practices, RBAC, secrets management, ingress, and admission control policies.
+This repository contains the implementation of both assignment tasks:
 
----
+### Task 1 - Kubernetes Workload Hardening
 
-## Components Deployed
+Objectives completed:
 
-### Application Workloads
-- ledger-api Deployment
-- reporting neighbour service
-- Kubernetes Service
+- Dedicated ServiceAccount
+- RBAC
+- Security Context Hardening
+- Resource Requests & Limits
+- Readiness & Liveness Probes
 - ConfigMap
-- Ingress
+- Kubernetes Secret
+- Sealed Secret
+- NGINX Ingress
+- Kyverno Policies
+- Policy Enforcement Validation
 
-### Security Hardening
-- Dedicated ServiceAccount (ledger-api-sa)
-- Least-privilege RBAC (Role & RoleBinding)
-- Non-root container execution
-- Read-only root filesystem
-- Dropped all Linux capabilities
-- Seccomp RuntimeDefault
-- Resource requests and limits
-- Liveness and Readiness probes
+Documentation:
 
-### Secrets Management
-- Removed hardcoded secrets from Deployment manifests
-- Created Kubernetes Secret
-- Implemented Bitnami Sealed Secrets
-- Stored encrypted secret as SealedSecret resource
+```text
+hardening/README.md
+```
 
-### Admission Control
-- Installed Kyverno
-- Implemented policy to prevent containers running as root
-- Implemented policy to block image tags using :latest
-- Verified policy enforcement using an insecure deployment
+Screenshots:
 
----
-
-## Validation Performed
-
-### Workload Validation
-- Verified all application pods are running
-- Verified readiness and liveness probes
-- Verified ServiceAccount association
-
-### Security Validation
-- Verified RBAC configuration
-- Verified ConfigMap and Secret usage
-- Verified Sealed Secret creation
-- Verified Ingress availability
-
-### Policy Enforcement Validation
-The following insecure deployment was intentionally tested:
-
-- Running container as root
-- Using nginx:latest image
-
-Kyverno successfully blocked the deployment and returned validation errors.
-
----
-
-## Screenshots
-
-Refer to:
-
+```text
 screenshots/task1/
-
-Included Evidence:
-
-1. Hardened Deployment
-2. Kubernetes Cluster Ready
-3. Application Pods Running
-4. ServiceAccount Creation
-5. RBAC Configuration
-6. ConfigMap Creation
-7. Kubernetes Secret
-8. Sealed Secret
-9. Ingress Configuration
-10. Kyverno Policies
-11. Policy Rejection Demonstration
+```
 
 ---
 
-## Result
+### Task 2 - Secure CI/CD & GitOps
 
-Task 1 successfully demonstrates workload hardening, secret management, ingress configuration, RBAC implementation, and Kubernetes admission control enforcement.
+Objectives completed:
+
+- GitHub Actions Pipeline
+- Gitleaks Secret Scanning
+- Trivy Vulnerability Scanning
+- Semgrep SAST Scanning
+- Docker Build
+- GitHub Container Registry (GHCR)
+- Cosign Image Signing
+- ArgoCD Installation
+- GitOps Deployment
+- Automatic Sync
+- Self Healing
+- Prune Resources
+
+Documentation:
+
+```text
+cicd/README.md
+```
+
+Screenshots:
+
+```text
+screenshots/task2/
+```
+
+---
+
+## Repository Structure
+
+```text
+.
+├── app/
+├── deploy/
+├── hardening/
+│   └── README.md
+├── cicd/
+│   └── README.md
+├── screenshots/
+│   ├── task1/
+│   └── task2/
+└── README.md
+```
+
+---
+
+## Technologies Used
+
+- Kubernetes
+- Kind
+- Docker
+- GitHub Actions
+- Gitleaks
+- Trivy
+- Semgrep
+- GitHub Container Registry (GHCR)
+- Cosign
+- ArgoCD
+- Kyverno
+- NGINX Ingress Controller
+- Sealed Secrets
+
+---
+
+## Assignment Status
+
+### Task 1
+
+✅ Completed
+
+### Task 2
+
+✅ Completed
+
+---
+
+## Final Result
+
+Successfully implemented:
+
+- Kubernetes workload hardening
+- Policy enforcement using Kyverno
+- Secure CI/CD pipeline
+- Container image signing
+- GitOps deployment using ArgoCD
