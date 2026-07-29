@@ -25,3 +25,8 @@ jobs:
       with:
         scan-type: 'fs'
         scan-ref: '.'
+
+    - name: Run Semgrep
+      uses: returntocorp/semgrep-action@v1
+      with:
+        config: p/security-audit
