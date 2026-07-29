@@ -6,12 +6,15 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-scan:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
+
+    - name: Run Gitleaks
+      uses: gitleaks/gitleaks-action@v2
 
     - name: Build Docker Image
       run: |
