@@ -1,317 +1,119 @@
-# Task 1 - Kubernetes Workload Hardening
+# Task 1 - Deploy & Harden the Workload
 
 ## Objective
+The objective of this task is to deploy the ledger-api workload on Kubernetes and harden it using production-grade security controls.
 
-Deploy and secure the vulnerable ledger-api application using Kubernetes security best practices.
+## What Was Implemented
 
----
+### 1. Kubernetes Workload Deployment
+The ledger-api application was deployed using Kubernetes manifests.
 
-# Components Implemented
+Included resources:
 
-## ServiceAccount
+- Namespace
+- Deployment
+- Service
+- ConfigMap
+- Ingress
+- Neighbour service
 
-Created a dedicated ServiceAccount:
+### 2. Container Security Context
+The workload was hardened using strict container security settings:
 
-```yaml
-ledger-api-sa
-```
+- Run as non-root user
+- Read-only root filesystem
+- Dropped Linux capabilities
+- RuntimeDefault seccomp profile
+- Privilege escalation disabled
 
-Purpose:
+### 3. Resource Management
+Resource requests and limits were configured to prevent uncontrolled resource usage.
 
-- Avoid using default ServiceAccount
-- Implement workload identity
-- Follow least privilege principle
+### 4. Health Checks
+Liveness and readiness probes were configured to help Kubernetes detect unhealthy containers and route traffic only to ready pods.
 
----
+### 5. ServiceAccount and RBAC
+A dedicated ServiceAccount was created for the ledger-api workload.
 
-## RBAC
+Least-privilege RBAC resources were added:
 
-Implemented:
+- serviceaccount.yaml
+- role.yaml
+- rolebinding.yaml
 
-- Role
-- RoleBinding
+### 6. Secrets Management
+Plaintext Kubernetes secret manifests were removed from the repository.
 
-Permissions granted:
+Secrets are represented using:
 
-```yaml
-configmaps:
-- get
-- list
-```
+- sealed-secret.yaml
 
-Purpose:
+This avoids committing plaintext sensitive values to Git.
 
-- Restrict Kubernetes API access
-- Prevent unnecessary permissions
+### 7. Admission Control with Kyverno
+Kyverno policies were added to reject insecure workloads.
 
----
+Policies included:
 
-## Container Hardening
+- disallow-root.yaml
+- disallow-latest.yaml
 
-Configured:
+A bad deployment manifest was also included to demonstrate policy rejection:
 
-```yaml
-runAsNonRoot: true
-runAsUser: 1000
+- bad-deployment.yaml
 
-allowPrivilegeEscalation: false
+## Files
 
-readOnlyRootFilesystem: true
+| File | Purpose |
+|---|---|
+| deployment-hardened.yaml | Hardened ledger-api Deployment |
+| serviceaccount.yaml | Dedicated ServiceAccount |
+| role.yaml | Least-privilege Role |
+| rolebinding.yaml | RoleBinding for ServiceAccount |
+| configmap.yaml | Non-sensitive configuration |
+| sealed-secret.yaml | Sealed Secret manifest |
+| ingress.yaml | Ingress resource |
+| disallow-root.yaml | Kyverno policy to block root containers |
+| disallow-latest.yaml | Kyverno policy to block latest image tags |
+| bad-deployment.yaml | Insecure deployment used for rejection test |
 
-capabilities:
-  drop:
-  - ALL
+## Evidence
 
-seccompProfile:
-  type: RuntimeDefault
-```
+Screenshots are available at:
 
-Purpose:
+- ../screenshots/task1/01-hardened-deployment-details.png
+- ../screenshots/task1/02-cluster-ready.png
+- ../screenshots/task1/03-hardened-pods-running.png
+- ../screenshots/task1/04-serviceaccount-created.png
+- ../screenshots/task1/05-rbac-role-rolebinding.png
+- ../screenshots/task1/06-configmap-created.png
+- ../screenshots/task1/08-sealed-secret-created.png
+- ../screenshots/task1/09-ingress-created.png
+- ../screenshots/task1/10-kyverno-policies.png
+- ../screenshots/task1/11-kyverno-policy-rejection.png
 
-- Prevent root execution
-- Disable privilege escalation
-- Restrict filesystem modifications
-- Remove unnecessary privileges
-- Reduce attack surface
+## Design Decisions
 
----
+### Why non-root containers?
+Running as non-root reduces the impact of a container escape or application compromise.
 
-## Resource Controls
+### Why read-only root filesystem?
+A read-only root filesystem reduces the ability of attackers to modify binaries, write persistence files, or tamper with the container runtime environment.
 
-Configured CPU and memory:
+### Why drop Linux capabilities?
+Dropping capabilities follows least privilege and removes unnecessary kernel-level permissions.
 
-```yaml
-requests:
-  cpu: "100m"
-  memory: "128Mi"
+### Why dedicated ServiceAccount?
+Using a dedicated ServiceAccount avoids relying on the default ServiceAccount and allows RBAC to be scoped only to what the application needs.
 
-limits:
-  cpu: "300m"
-  memory: "256Mi"
-```
+### Why Sealed Secrets?
+Sealed Secrets allows encrypted secret manifests to be stored in Git without exposing plaintext sensitive values.
 
-Purpose:
+### Why Kyverno?
+Kyverno provides Kubernetes-native admission control to reject insecure workloads before they are admitted into the cluster.
 
-- Prevent resource abuse
-- Improve workload stability
-
----
-
-## Health Checks
-
-Implemented:
-
-### Readiness Probe
-
-Checks:
-
-```text
-/health
-```
-
-Purpose:
-
-- Verify application is ready for traffic
-
-### Liveness Probe
-
-Checks:
-
-```text
-/health
-```
-
-Purpose:
-
-- Automatically restart unhealthy containers
-
----
-
-## ConfigMap
-
-Created:
-
-```yaml
-ledger-api-config
-```
-
-Purpose:
-
-- Store non-sensitive configuration
-- Separate configuration from deployment
-
----
-
-## Kubernetes Secret
-
-Moved:
-
-```text
-STRIPE_API_KEY
-DB_PASSWORD
-```
-
-from Deployment into Kubernetes Secret.
-
-Purpose:
-
-- Remove hardcoded secrets
-- Improve credential management
-
----
-
-## Sealed Secret
-
-Implemented:
-
-```yaml
-SealedSecret
-```
-
-using:
-
-```bash
-kubeseal
-```
-
-Purpose:
-
-- Encrypt secrets
-- Store encrypted secrets safely in Git
-
----
-
-## NGINX Ingress
-
-Installed:
-
-```text
-NGINX Ingress Controller
-```
-
-Created:
-
-```yaml
-ledger-api-ingress
-```
-
-Purpose:
-
-- External access to application
-- Centralized traffic routing
-
----
-
-## Kyverno Policies
-
-Installed:
-
-```text
-Kyverno
-```
-
-Implemented:
-
-### disallow-root
-
-Blocks:
-
-```yaml
-runAsNonRoot: false
-```
-
-### disallow-latest
-
-Blocks:
-
-```yaml
-image: latest
-```
-
-Purpose:
-
-- Enforce workload security
-- Enforce image version control
-
----
-
-## Policy Enforcement Test
-
-Created:
-
-```yaml
-bad-deployment.yaml
-```
-
-Containing:
-
-```yaml
-image: nginx:latest
-```
-
-without:
-
-```yaml
-runAsNonRoot: true
-```
-
-Result:
-
-```text
-Deployment rejected by Kyverno
-```
-
-This verified active policy enforcement.
-
----
-
-# Security Controls Implemented
-
-✅ Dedicated ServiceAccount
-
-✅ RBAC
-
-✅ Non-root Container
-
-✅ Read-only Filesystem
-
-✅ Disabled Privilege Escalation
-
-✅ Dropped Linux Capabilities
-
-✅ RuntimeDefault Seccomp
-
-✅ Resource Limits
-
-✅ Readiness Probe
-
-✅ Liveness Probe
-
-✅ ConfigMap
-
-✅ Kubernetes Secret
-
-✅ Sealed Secret
-
-✅ NGINX Ingress
-
-✅ Kyverno Policies
-
-✅ Policy Rejection Test
-
----
-
-# Evidence
-
-Refer:
-
-```text
-screenshots/task1/
-```
-
-for implementation screenshots and validation evidence.
-
----
-
-# Final Result
-
+## Limitations / Future Improvements
+- Replace Sealed Secrets with External Secrets Operator if integrating with a cloud secret manager.
+- Add image signature verification policy using Kyverno.
+- Add Pod Security Standards restricted enforcement at namespace level.
+- Add more granular RBAC validation tests.
