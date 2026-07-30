@@ -1,200 +1,142 @@
-# Dodo Payments - Security & DevOps Engineer Technical Assessment
+# Dodo Payments DevSecOps Assessment
+
+## Candidate
+Sasikumar E M
+
+## Role
+Security & DevOps Engineer - Technical Assessment
 
 ## Overview
+This repository contains my implementation of the Dodo Payments DevSecOps technical assessment. The work covers Kubernetes workload hardening, secure CI/CD and supply chain controls, Istio-based zero-trust networking, and reconnaissance / penetration testing documentation.
 
-This repository contains the implementation of all completed assessment tasks for the Dodo Payments Security & DevOps Engineer Technical Assessment.
+## Repository Structure
 
-The work focuses on:
+| Folder | Description |
+|---|---|
+| app/ | Ledger API application source code and Dockerfile |
+| deploy/ | Base Kubernetes deployment manifests |
+| task1-workload-hardening/ | Hardened Kubernetes manifests, RBAC, secrets, and Kyverno policies |
+| task2-secure-cicd/ | Secure CI/CD documentation and pipeline evidence |
+| task3-istio-zero-trust/ | Istio mTLS, AuthorizationPolicy, and NetworkPolicy manifests |
+| task4-recon-pentest/ | Passive recon outputs and penetration testing report |
+| screenshots/ | Evidence screenshots for Tasks 1, 2, 3, and 4 |
+| docs/ | Supporting documentation or diagrams, if applicable |
 
-- Kubernetes workload hardening
-- Secure CI/CD and software supply chain security
-- Zero-trust networking with Istio
-- Reconnaissance and attack-surface assessment
+## Task Summary
 
----
+### Task 1 - Deploy & Harden the Workload
+Implemented Kubernetes workload hardening for ledger-api using:
 
-# Task 1 - Deploy & Harden the Workload
-
-Objectives completed:
-
+- Non-root container execution
+- Read-only root filesystem
+- Dropped Linux capabilities
+- RuntimeDefault seccomp profile
+- Resource requests and limits
+- Liveness and readiness probes
 - Dedicated ServiceAccount
-- Least-Privilege RBAC
-- Security Context Hardening
-- Readiness & Liveness Probes
-- Resource Requests & Limits
-- ConfigMaps
-- Kubernetes Secrets
-- Sealed Secrets
-- NGINX Ingress
-- Kyverno Admission Policies
-- Policy Enforcement Validation
+- Least-privilege RBAC
+- ConfigMap and secret handling
+- Sealed Secret manifest
+- Kyverno guardrails to reject insecure workloads
 
-Documentation:
+Evidence is available in:
 
-```text
-hardening/README.md
-```
+- task1-workload-hardening/
+- screenshots/task1/
 
-Screenshots:
+### Task 2 - Secure CI/CD Pipeline & Supply Chain
+Implemented secure delivery controls using GitHub Actions and supporting DevSecOps tooling.
 
-```text
-screenshots/task1/
-```
+Covered areas:
 
----
+- GitHub Actions pipeline
+- GHCR image build/publish evidence
+- Security scanning evidence
+- Cosign image signing evidence
+- ArgoCD GitOps sync and self-heal evidence
 
-# Task 2 - Secure CI/CD Pipeline & Supply Chain
+Evidence is available in:
 
-Objectives completed:
+- task2-secure-cicd/
+- screenshots/task2/
 
-- GitHub Actions Pipeline
-- Gitleaks Secret Scanning
-- Semgrep SAST Scanning
-- Trivy Vulnerability Scanning
-- Docker Image Build
-- GitHub Container Registry (GHCR)
-- Cosign Image Signing
-- GitOps with ArgoCD
-- Automatic Sync
-- Drift Detection
-- Self-Healing
+### Task 3 - Service Mesh & Zero Trust
+Implemented Istio-based zero-trust controls.
 
-Documentation:
+Covered areas:
 
-```text
-cicd/README.md
-```
+- Istio mTLS STRICT mode
+- PeerAuthentication
+- Default deny AuthorizationPolicy
+- Explicit allow based on workload identity
+- Kubernetes NetworkPolicy for defense-in-depth
+- Authorized and unauthorized access validation
 
-Screenshots:
+Evidence is available in:
 
-```text
-screenshots/task2/
-```
+- task3-istio-zero-trust/
+- screenshots/task3/
 
----
+### Task 4 - Reconnaissance & Penetration Testing
+Implemented passive reconnaissance documentation for dodopayments.tech and prepared a penetration testing report for the authorized target/local lab.
 
-# Task 3 - Service Mesh & Zero Trust Security
+Covered areas:
 
-Objectives completed:
+- Subdomain enumeration
+- Public attack surface inventory
+- Live host identification
+- Technology fingerprinting
+- TLS posture review
+- Risk observations
+- Penetration testing report template with CVSS and remediation structure
 
-- Istio Service Mesh Installation
-- mTLS STRICT Enforcement
-- PeerAuthentication Policies
-- Authorization Policies
-- Identity-Based Access Control
-- NetworkPolicy Enforcement
-- Authorized Access Validation
-- Unauthorized Access Blocking
+Evidence and reports are available in:
 
-Documentation:
+- task4-recon-pentest/part-a-recon/
+- task4-recon-pentest/reports/pentest-report.md
+- screenshots/task4-PartA/
 
-```text
-task3-istio/README.md
-```
+## Important Scope Note
+Passive reconnaissance was limited to public information such as DNS, certificate transparency data, HTTP banners, and TLS posture. Active testing was not performed against production dodopayments.tech or dodopayments.com hosts. Active testing is intended only for the authorized vulnerable target or local lab environment.
 
-Screenshots:
+## Security Gate Policy
 
-```text
-screenshots/task3/
-```
+| Control | Tool / Method | Policy |
+|---|---|---|
+| Secrets scan | Gitleaks | Hard block for exposed secrets |
+| SAST | Semgrep | Block high-confidence high/critical findings |
+| Image scan | Trivy / similar | Block critical vulnerabilities with available fixes |
+| Image signing | Cosign | Required for trusted image promotion |
+| GitOps | ArgoCD | Cluster state reconciled from Git |
+| Admission control | Kyverno | Reject root containers and latest tags |
 
----
+## Evidence Checklist
 
-# Task 4 Part A - Reconnaissance & Attack Surface Review
+- [x] Kubernetes hardened deployment evidence
+- [x] ServiceAccount and RBAC evidence
+- [x] Secret / Sealed Secret evidence
+- [x] Kyverno policy rejection evidence
+- [x] GitHub Actions pipeline evidence
+- [x] GHCR image evidence
+- [x] Cosign signing evidence
+- [x] ArgoCD sync evidence
+- [x] Istio mTLS STRICT evidence
+- [x] AuthorizationPolicy allow/deny evidence
+- [x] NetworkPolicy evidence
+- [x] Passive reconnaissance outputs
+- [x] Attack surface report
+- [x] Penetration testing report structure
 
-Objectives completed:
+## How to Review
+Start from this README, then review each task folder and corresponding screenshots.
 
-- Passive OSINT Reconnaissance
-- Certificate Transparency Enumeration
-- Subdomain Discovery
-- Asset Discovery
-- Live Host Identification
-- Technology Fingerprinting
-- TLS Posture Assessment
-- Attack Surface Report
+Recommended review order:
 
-Artifacts:
+1. task1-workload-hardening/
+2. task2-secure-cicd/
+3. task3-istio-zero-trust/
+4. task4-recon-pentest/
+5. screenshots/
 
-```text
-task4-parta/
-├── subfinder.txt
-├── assetfinder.txt
-├── all-subs.txt
-├── live-hosts.txt
-├── whatweb-results.txt
-├── testssl-results.txt
-└── attack-surface-report.md
-```
-
-Screenshots:
-
-```text
-screenshots/task4-PartA/
-```
-
----
-
-# Repository Structure
-
-```text
-.
-├── app/
-├── cicd/
-├── deploy/
-├── hardening/
-├── task3-istio/
-├── task4-parta/
-├── screenshots/
-│   ├── task1/
-│   ├── task2/
-│   ├── task3/
-│   └── task4-PartA/
-└── README.md
-```
-
----
-
-# Technologies Used
-
-- Kubernetes
-- Kind
-- Docker
-- GitHub Actions
-- ArgoCD
-- Cosign
-- GHCR
-- Kyverno
-- Istio
-- Gitleaks
-- Trivy
-- Semgrep
-- NGINX Ingress
-- Sealed Secrets
-- WhatWeb
-- testssl.sh
-- Subfinder
-- Assetfinder
-
----
-
-# Assignment Status
-
-| Task | Status |
-|--------|--------|
-| Task 1 | ✅ Completed |
-| Task 2 | ✅ Completed |
-| Task 3 | ✅ Completed |
-| Task 4 Part A | ✅ Completed |
-| Task 4 Part B | 🚧 In Progress |
-
----
-
-# Final Outcome
-
-Successfully demonstrated:
-
-- Kubernetes security hardening
-- Secure software supply chain
-- GitOps deployment model
-- Zero-trust networking with Istio
-- Attack surface enumeration and analysis
+## Notes
+All implementation work was performed using local/free tooling as required by the assessment.
